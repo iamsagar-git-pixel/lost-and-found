@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f5f2">
+  <meta name="student-id" content="{{ student.id if student else '' }}">
+  <title>Campus Lost & Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Campus Lost and Found home">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4.5 5 10v12l11 5.5L27 22V10L16 4.5Z"/><path d="m5.5 10.3 10.5 5.3 10.5-5.3M16 16v11"/><path d="m11 13 10-5"/></svg></span>
+      <span class="brand-name">campus<span>find</span></span>
+    </a>
+    <div class="topbar-right"><span class="campus-label"><span class="online-dot"></span>{% if student %} {{ student.full_name }}{% else %} Student community{% endif %}</span><a class="button button-quiet button-small admin-nav-link" href="/admin">Admin</a>{% if student %}<a class="button button-quiet button-small" href="/student">My account</a><form action="/student/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="button button-quiet button-small" type="submit">Sign out</button></form><button class="button button-dark button-small" id="openReport"><svg viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg><span>Post an item</span></button>{% else %}<a class="button button-dark button-small" href="/login">Student sign in</a>{% endif %}</div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="intro-copy"><p class="eyebrow"><span class="eyebrow-line"></span> THE CAMPUS COMMUNITY BOARD</p><h1>Lost something?<br><span>Found it here.</span></h1><p class="intro-text">A little help from the people around you goes a long way. Find what’s missing or help someone get it back.</p>
+        <div class="quick-stats"><div><strong id="totalCount">—</strong><span>open listings</span></div><i></i><div><strong id="foundCount">—</strong><span>items found</span></div><i></i><div><strong id="lostCount">—</strong><span>still missing</span></div></div>
+      </div>
+      <div class="intro-art" aria-hidden="true"><div class="art-grid"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="art-spark spark-a">✳</div><div class="art-spark spark-b">✦</div><div class="art-note note-back"><span class="note-pin"></span><span class="note-lines"><i></i><i></i><i></i></span></div><div class="art-note note-front"><span class="note-type">FOUND · LIBRARY</span><strong>Someone’s<br>waiting for this.</strong><span class="note-heart">♡</span><div class="note-item"><span class="earbud-icon"><i></i><i></i></span><span>wireless earbuds</span></div></div><span class="art-label">GOOD THINGS FIND THEIR WAY BACK</span></div>
+    </section>
+
+    <section class="listings" aria-label="Item listings">
+      <div class="section-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> THE BOARD</p><h2>Browse the latest</h2></div><span class="updated-label"><span class="online-dot"></span> Updated just now</span></div>
+      <div class="toolbar">
+        <div class="search-wrap"><svg viewBox="0 0 20 20"><circle cx="8.7" cy="8.7" r="5.7"/><path d="m13 13 4 4"/></svg><input id="searchInput" type="search" placeholder="Search items, places…" autocomplete="off" aria-label="Search items and places"></div>
+        <div class="filters"><div class="segmented" role="group" aria-label="Filter by item status"><button class="segment active" data-kind="all">All items</button><button class="segment" data-kind="lost">Lost</button><button class="segment" data-kind="found">Found</button></div><label class="select-wrap"><span class="sr-only">Filter by category</span><select id="categoryFilter"><option value="all">All categories</option>{% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></label></div>
+      </div>
+      <div class="results-line"><span id="resultCount">Loading listings…</span><span>Newest first</span></div>
+      <div class="item-grid" id="itemGrid" aria-live="polite"></div>
+      <div class="empty-state" id="emptyState" hidden><span class="empty-icon"><svg viewBox="0 0 32 32"><circle cx="13.5" cy="13.5" r="8"/><path d="m19.5 19.5 7 7M10 13.5h7"/></svg></span><h3>No listings found</h3><p>Try another search, or post an item to get the word out.</p>{% if student %}<button class="button button-dark" id="emptyPost"><svg viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg>Post an item</button>{% else %}<a class="button button-dark" id="emptyPost" href="/login">Student sign in to post</a>{% endif %}</div>
+    </section>
+    <section class="bottom-cta"><div class="cta-symbol"><svg viewBox="0 0 32 32"><path d="M16 4.5 5 10v12l11 5.5L27 22V10L16 4.5Z"/><path d="m5.5 10.3 10.5 5.3 10.5-5.3M16 16v11"/></svg></div><div><h2>Found something on campus?</h2><p>One quick post could make someone’s day.</p></div>{% if student %}<button class="button button-white" id="bottomReport">Share a found item <svg viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg></button>{% else %}<a class="button button-white" href="/register">Join to post an item <svg viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>{% endif %}</section>
+  </main>
+  <footer><a class="brand brand-footer" href="/"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4.5 5 10v12l11 5.5L27 22V10L16 4.5Z"/><path d="m5.5 10.3 10.5 5.3 10.5-5.3M16 16v11"/></svg></span><span class="brand-name">campus<span>find</span></span></a><span>Made for things to find their way home.</span><span>Campus community · 2026</span></footer>
+
+  {% if student %}<dialog id="reportDialog" class="dialog"><form id="reportForm" enctype="multipart/form-data"><div class="dialog-head"><div><p class="eyebrow"><span class="eyebrow-line"></span> ADD TO THE BOARD</p><h2>Post an item</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close"><svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div><p class="dialog-intro">Share a few details so the right person can spot it.</p><div class="form-grid"><fieldset class="field full-field"><legend>Are you reporting a lost or found item?</legend><div class="type-choice"><label><input type="radio" name="kind" value="lost" required><span><i class="choice-dot"></i> I lost something</span></label><label><input type="radio" name="kind" value="found" required><span><i class="choice-dot"></i> I found something</span></label></div></fieldset><label class="field"><span>Item name</span><input name="title" maxlength="90" placeholder="e.g. Blue water bottle" required></label><label class="field"><span>Category</span><select name="category" required><option value="" disabled selected>Select a category</option>{% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select></label><label class="field full-field"><span>Where was it lost or found?</span><input name="location" maxlength="120" placeholder="e.g. Library, second floor" required></label><label class="field"><span>Date</span><input name="event_date" type="date" required></label><label class="field full-field"><span>Description</span><textarea name="description" maxlength="1200" rows="3" placeholder="Color, brand, identifying details…" required></textarea></label><label class="field full-field"><span>Photo <small>optional · JPG, PNG or WebP, up to 4 MB</small></span><input class="file-input" name="image" type="file" accept="image/png,image/jpeg,image/webp"></label></div><p class="privacy-note"><svg viewBox="0 0 20 20"><rect x="4" y="8" width="12" height="9" rx="1.5"/><path d="M7 8V6a3 3 0 0 1 6 0v2M10 11v3"/></svg>Your campus email appears on your listing details as the contact.</p><p class="form-error" id="formError" role="alert"></p><div class="dialog-actions"><button type="button" class="button button-quiet close-dialog">Cancel</button><button type="submit" class="button button-dark" id="submitPost">Publish listing <svg viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg></button></div></form></dialog>{% endif %}
+  <dialog id="detailDialog" class="dialog detail-dialog"><div id="detailContent"></div></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

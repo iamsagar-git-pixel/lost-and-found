@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f5f2">
+  <title>{% if mode == 'register' %}Student registration{% else %}Student sign in{% endif %} · CampusFind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+</head>
+<body class="auth-page">
+  <header class="topbar"><a class="brand" href="/" aria-label="CampusFind home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4.5 5 10v12l11 5.5L27 22V10L16 4.5Z"/><path d="m5.5 10.3 10.5 5.3 10.5-5.3M16 16v11"/></svg></span><span class="brand-name">campus<span>find</span></span></a><a class="admin-nav-link" href="/">Back to the board</a></header>
+  <main class="auth-main">
+    <section class="auth-shell">
+      <div class="login-emblem"><svg viewBox="0 0 32 32"><path d="M16 4 6 8v7c0 6 4 10 10 13 6-3 10-7 10-13V8L16 4Z"/><path d="m12 16 3 3 6-7"/></svg></div>
+      <p class="eyebrow"><span class="eyebrow-line"></span> STUDENT ACCESS</p>
+      <h1>{% if mode == 'register' %}Join your campus{% else %}Student sign in{% endif %}</h1>
+      <p class="login-copy">{% if mode == 'register' %}Register with your campus email. An admin will review your student ID before activating your account.{% else %}Only approved campus accounts can sign in and post listings.{% endif %}</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p class="login-alert {{ category }}" role="status">{{ message }}</p>{% endfor %}{% endif %}{% endwith %}
+      {% if mode == 'register' %}
+      <form class="auth-form" action="/register" method="post" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label class="field"><span>Full name</span><input name="full_name" maxlength="100" autocomplete="name" placeholder="As shown on your student ID" required></label>
+        <label class="field"><span>Campus email</span><input name="email" type="email" maxlength="160" autocomplete="email" placeholder="you@college.edu" required></label>
+        <label class="field"><span>Create password</span><input name="password" type="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters" required></label>
+        <label class="field"><span>Student ID card photo</span><input class="file-input" name="id_card" type="file" accept="image/png,image/jpeg,image/webp" required><small class="field-hint">JPG, PNG or WebP · up to 4 MB · visible only to admins</small></label>
+        <div class="id-privacy"><svg viewBox="0 0 20 20"><rect x="4" y="8" width="12" height="9" rx="1.5"/><path d="M7 8V6a3 3 0 0 1 6 0v2M10 11v3"/></svg><span>Your ID photo is stored privately for manual verification. Your email will be shown as contact information on listings you create.</span></div>
+        <button class="button button-dark" type="submit">Submit for approval <svg viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg></button>
+      </form>
+      <p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>
+      {% else %}
+      <form class="auth-form" action="/login" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label class="field"><span>Campus email</span><input name="email" type="email" autocomplete="username" placeholder="you@college.edu" required></label>
+        <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="button button-dark" type="submit">Sign in <svg viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg></button>
+      </form>
+      <p class="auth-switch">New to CampusFind? <a href="/register">Register with your student ID</a></p>
+      {% endif %}
+      <a class="back-link" href="/">← Back to the board</a>
+    </section>
+  </main>
+</body>
+</html>

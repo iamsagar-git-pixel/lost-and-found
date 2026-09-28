@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Admin · CampusFind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin-approval.css') }}">
+</head>
+<body class="admin-page">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="CampusFind home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4.5 5 10v12l11 5.5L27 22V10L16 4.5Z"/><path d="m5.5 10.3 10.5 5.3 10.5-5.3M16 16v11"/></svg></span><span class="brand-name">campus<span>find</span></span></a>
+    <div class="topbar-right"><a class="admin-nav-link" href="/">View public board</a>{% if authenticated %}<form action="/admin/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="button button-quiet button-small" type="submit">Sign out</button></form>{% endif %}</div>
+  </header>
+  <main class="admin-main">
+    {% if not authenticated %}
+    <section class="login-shell">
+      <div class="login-emblem"><svg viewBox="0 0 32 32"><path d="M16 4 6 8v7c0 6 4 10 10 13 6-3 10-7 10-13V8L16 4Z"/><path d="m12 16 3 3 6-7"/></svg></div>
+      <p class="eyebrow"><span class="eyebrow-line"></span> CAMPUSFIND</p>
+      <h1>Admin sign in</h1>
+      <p class="login-copy">Sign in to review and manage campus listings.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p class="login-alert" role="alert">{{ message }}</p>{% endfor %}{% endif %}{% endwith %}
+      <form class="login-form" action="/admin/login" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label class="field"><span>Admin password</span><input name="password" type="password" autocomplete="current-password" required autofocus></label><button class="button button-dark" type="submit">Sign in <svg viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg></button></form>
+      <a class="back-link" href="/">← Back to the board</a>
+    </section>
+    {% else %}
+    <div class="admin-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> CAMPUSFIND ADMIN</p><h1>Listing management</h1><p class="admin-subtitle">Review reports and keep the community board up to date.</p></div><span class="admin-session"><i></i> Admin session</span></div>
+    <section class="admin-stats" aria-label="Listing statistics"><div class="admin-stat"><span>All listings</span><strong id="statTotal">—</strong><small>reports received</small></div><div class="admin-stat"><span>Open</span><strong id="statOpen">—</strong><small>need attention</small></div><div class="admin-stat"><span>Resolved</span><strong id="statResolved">—</strong><small>closed reports</small></div><div class="admin-stat"><span>Lost / Found</span><strong><span id="statLost">—</span><i>/</i><span id="statFound">—</span></strong><small>report types</small></div><div class="admin-stat approval-stat"><span>Student approvals</span><strong id="statPendingStudents">—</strong><small>waiting for review</small></div></section>
+    <section class="approval-section" id="studentApprovals"><div class="admin-listing-head"><div><h2>Student verification</h2><p>Review campus ID photos before activating student accounts.</p></div><span class="pending-counter"><i></i><span id="pendingStudentCount">0</span> pending</span></div><div class="admin-table-wrap"><table class="admin-table approval-table"><thead><tr><th>Student</th><th>Campus email</th><th>Applied</th><th>ID card</th><th>Status</th><th>Decision</th></tr></thead><tbody id="studentRows"></tbody></table><div class="admin-empty" id="studentEmpty" hidden>No student registrations yet.</div></div></section>
+    <section class="admin-listing-section">
+      <div class="admin-listing-head"><div><h2>All reports</h2><p id="adminResultCount">Loading listings…</p></div><button class="icon-button refresh-button" id="refreshItems" type="button" aria-label="Refresh listings" title="Refresh"><svg viewBox="0 0 20 20"><path d="M16 8a6 6 0 0 0-10-3L4 7M4 4v3h3M4 12a6 6 0 0 0 10 3l2-2m0 3v-3h-3"/></svg></button></div>
+      <div class="admin-toolbar"><label class="search-wrap"><svg viewBox="0 0 20 20"><circle cx="8.7" cy="8.7" r="5.7"/><path d="m13 13 4 4"/></svg><input id="adminSearch" type="search" placeholder="Search title, location, email…" aria-label="Search all listings"></label><label class="select-wrap"><span class="sr-only">Filter by status</span><select id="statusFilter"><option value="all">All statuses</option><option value="open">Open</option><option value="resolved">Resolved</option></select><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></label><label class="select-wrap"><span class="sr-only">Filter by type</span><select id="kindFilter"><option value="all">All types</option><option value="lost">Lost</option><option value="found">Found</option></select><svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></label></div>
+      <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Item</th><th>Type</th><th>Location</th><th>Contact</th><th>Date</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody id="adminRows"></tbody></table><div class="admin-empty" id="adminEmpty" hidden>No reports match these filters.</div></div>
+    </section>
+    {% endif %}
+  </main>
+  {% if authenticated %}<div class="toast" id="adminToast" role="status"></div><script src="{{ url_for('static', filename='admin.js') }}"></script>{% endif %}
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f4f5f2">
+  <title>My account · CampusFind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+</head>
+<body class="student-page">
+  <header class="topbar"><a class="brand" href="/" aria-label="CampusFind home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4.5 5 10v12l11 5.5L27 22V10L16 4.5Z"/><path d="m5.5 10.3 10.5 5.3 10.5-5.3M16 16v11"/></svg></span><span class="brand-name">campus<span>find</span></span></a><div class="topbar-right"><a class="admin-nav-link" href="/">Public board</a><form action="/student/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="button button-quiet button-small" type="submit">Sign out</button></form></div></header>
+  <main class="student-main">
+    <section class="student-welcome"><div><p class="eyebrow"><span class="eyebrow-line"></span> STUDENT ACCOUNT</p><h1>Welcome, {{ student.full_name }}</h1><p>{{ student.email }} <span class="active-pill"><i></i> Verified student</span></p></div><a class="button button-dark" href="/?post=1"><svg viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg>Post an item</a></section>
+    <section class="student-items"><div class="student-section-head"><div><h2>My listings</h2><p>Track the lost and found reports you’ve posted.</p></div><span class="account-count">{{ items|length }} total</span></div>
+      {% if items %}<div class="student-list">{% for item in items %}<article class="student-row"><span class="student-type {{ item.kind }}">{{ item.kind }}</span><div class="student-item-copy"><strong>{{ item.title }}</strong><small>{{ item.category }} · {{ item.location }}</small></div><span class="status-label {{ item.status }}"><i></i>{{ item.status }}</span><span class="student-date">{{ item.event_date }}</span></article>{% endfor %}</div>{% else %}<div class="student-empty"><span class="empty-icon"><svg viewBox="0 0 32 32"><path d="M16 5v22M5 16h22"/></svg></span><h3>No listings yet</h3><p>Your reports will show up here once you post them.</p><a class="button button-dark" href="/?post=1">Post your first item</a></div>{% endif %}
+    </section>
+  </main>
+  <footer><a class="brand brand-footer" href="/"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4.5 5 10v12l11 5.5L27 22V10L16 4.5Z"/><path d="m5.5 10.3 10.5 5.3 10.5-5.3M16 16v11"/></svg></span><span class="brand-name">campus<span>find</span></span></a><span>Campus community · 2026</span></footer>
+</body>
+</html>
